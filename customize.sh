@@ -159,26 +159,25 @@ set_boot_partition
 boot_path=$(find_boot_partition "$boot_partition")
 ui_print "- Boot partition path: $boot_path"
 backup_boot_image
-
-# Example condition to handle different setups (like APatch, KSU, or Magisk)
 if [ "$APATCH" ]; then
+    ui_print "- APatch detected"
     ui_print "- APatch: $APATCH_VER │ $APATCH_VER_CODE"
     bin_dir="/data/adb/ap/bin"
-    [ -f "$bin_dir/wadbd" ] && rm -f "$bin_dir/wadbd"
 elif [ "$KSU" ]; then
+    ui_print "- KernelSU Detected"
     ui_print "- KSU: $KSU_KERNEL_VER_CODE │ $KSU_VER_CODE"
     bin_dir="/data/adb/ksu/bin"
-    [ -f "$bin_dir/wadbd" ] && rm -f "$bin_dir/wadbd"
 elif [ "$MAGISK_VER_CODE" ]; then
+    ui_print "- Magisk Detected"
     ui_print "- Magisk: $MAGISK_VER │ $MAGISK_VER_CODE"
     bin_dir="/data/adb/magisk"
 else
     ui_print "- ! Not Supported"
     abort
 fi
-
 magiskboot="$bin_dir/magiskboot"
-ui_print "- MagiskBoot path: $magiskboot"
+[ ! -f "$magiskboot" ] && abort "- magiskboot not found"
+[ ! -x "$magiskboot" ] && chmod +x "$magiskboot"
 
 # create temporary directory and copy the boot image using dd
 mkdir -p /data/adb/tmp
