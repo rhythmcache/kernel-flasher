@@ -1,0 +1,6 @@
+id=kernelflasher
+name=KernelFlasher
+version=1
+versionCode=1
+author=rhythmcache.t.me
+description=Simple Kernel Image Flasher
