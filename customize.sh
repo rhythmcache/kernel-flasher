@@ -132,6 +132,7 @@ find_boot_partition() {
     local partition="$1"
     local path
 
+    # Check standard paths
     path="/dev/block/by-name/$partition"
     if [ -e "$path" ]; then
         echo "$(readlink -f "$path")"
@@ -144,6 +145,15 @@ find_boot_partition() {
         return 0
     fi
 
+    local boot_device=$(grep -o 'androidboot.boot_devices=[^ ]*' /proc/cmdline | cut -d '=' -f2)
+    if [ -n "$boot_device" ]; then
+        path="/dev/block/platform/$boot_device/by-name/$partition"
+        if [ -e "$path" ]; then
+            echo "$(readlink -f "$path")"
+            return 0
+        fi
+    fi
+
     path=$(find /dev/block -name "$partition" 2>/dev/null | head -n 1)
     if [ -n "$path" ]; then
         echo "$(readlink -f "$path")"
@@ -153,7 +163,6 @@ find_boot_partition() {
     ui_print "- Error: Boot partition not found!"
     abort
 }
-
 # Main logic
 set_boot_partition
 boot_path=$(find_boot_partition "$boot_partition")
